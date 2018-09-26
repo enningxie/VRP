@@ -206,9 +206,9 @@ class CreateTimeEvaluator(object):
         """Initializes the total time matrix."""
         self._total_time = {}
         # precompute total time to have time callback in O(1)
-        for from_node in xrange(data.num_locations):
+        for from_node in range(data.num_locations):
             self._total_time[from_node] = {}
-            for to_node in xrange(data.num_locations):
+            for to_node in range(data.num_locations):
                 if from_node == to_node:
                     self._total_time[from_node][to_node] = 0
                 else:
@@ -220,15 +220,16 @@ class CreateTimeEvaluator(object):
         """Returns the total time between the two nodes"""
         return self._total_time[from_node][to_node]
 
+
 def add_time_window_constraints(routing, data, time_evaluator):
     """Add Global Span constraint"""
     time = "Time"
     horizon = 120
     routing.AddDimension(
         time_evaluator,
-        horizon, # allow waiting time
-        horizon, # maximum time per vehicle
-        False, # don't force start cumul to zero since we are giving TW to start nodes
+        horizon,  # allow waiting time
+        horizon,  # maximum time per vehicle
+        False,  # don't force start cumul to zero since we are giving TW to start nodes
         time)
     time_dimension = routing.GetDimensionOrDie(time)
     for location_idx, time_window in enumerate(data.time_windows):
@@ -237,10 +238,11 @@ def add_time_window_constraints(routing, data, time_evaluator):
         index = routing.NodeToIndex(location_idx)
         time_dimension.CumulVar(index).SetRange(time_window[0], time_window[1])
         routing.AddToAssignment(time_dimension.SlackVar(index))
-    for vehicle_id in xrange(data.num_vehicles):
+    for vehicle_id in range(data.num_vehicles):
         index = routing.Start(vehicle_id)
         time_dimension.CumulVar(index).SetRange(data.time_windows[0][0], data.time_windows[0][1])
         routing.AddToAssignment(time_dimension.SlackVar(index))
+
 
 ###########
 # Printer #
@@ -275,7 +277,7 @@ class ConsolePrinter():
         time_dimension = self.routing.GetDimensionOrDie('Time')
         total_dist = 0
         total_time = 0
-        for vehicle_id in xrange(self.data.num_vehicles):
+        for vehicle_id in range(self.data.num_vehicles):
             index = self.routing.Start(vehicle_id)
             plan_output = 'Route for vehicle {0}:\n'.format(vehicle_id)
             route_dist = 0
@@ -318,6 +320,7 @@ class ConsolePrinter():
         print('Total Distance of all routes: {0}m'.format(total_dist))
         print('Total Time of all routes: {0}min'.format(total_time))
 
+
 ########
 # Main #
 ########
@@ -346,6 +349,7 @@ def main():
     assignment = routing.SolveWithParameters(search_parameters)
     printer = ConsolePrinter(data, routing, assignment)
     printer.print()
+
 
 if __name__ == '__main__':
     main()
